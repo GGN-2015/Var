@@ -15,11 +15,10 @@ int main(int argc, char** argv) {
 	using std::cout;
 	using std::endl;
 	
-	//cout << "$Test Main for Project Var " << endl;
-	Var tmp = CreateDict();
-	tmp[5] = 6;
-	tmp[2] = CreateList({0, 1, BigInt("123456789"), "hello\nworld"});
-	tmp[4] = CreateDict({DictKey(3, 5), DictKey("hello", 123.456), DictKey(tmp[2], None)});
-	cout << tmp;
+	cout << "$Test Main for Project Var " << endl;
+	Var tmp = CreateDict({DictKey(1, 2), DictKey(2, 3)});
+	cout << tmp.toString();
+	//Var lis = CreateList({0, 1, 2, 3, 4, 5, 6, 7});
+	//cout << lis << endl;
 	return 0;
 }

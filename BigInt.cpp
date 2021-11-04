@@ -77,9 +77,12 @@ BigInt::BigInt(const std::string& str) {
 	ss << str;
 	BigInt tmp;
 	ss >> tmp;
-	swap(tmp.len, this -> len);
-	swap(tmp.arr, this -> arr);
-	swap(tmp.isneg, this -> isneg);
+	this -> len = tmp.len; // Here you can not use swap, because this -> arr is bad value
+	this -> isneg = tmp.isneg;
+	this -> arr = new int[this -> len];
+	for(int i = 0; i < this -> len; i ++) {
+		this -> arr[i] = tmp.arr[i];
+	}
 }
 
 BigInt::BigInt(const BigInt& bigInt) { // Deep Copy a BigInt

@@ -3,6 +3,7 @@
 #include <map> // use map to make 'DictType'
 #include <vector> // use vector to make 'ListType'
 #include <string> // use string to make 'StringType'
+#include <sstream>
 
 #include "Var.h"
 #include "BigInt.h"
@@ -313,7 +314,7 @@ Var& Var::toInt() {
 	if(this -> varType == IntType) {
 		return *this;
 	}
-	assert(this -> varType == IntType || this -> varType == StringType || this -> varType == FloatType);
+	assert(this -> varType == StringType || this -> varType == FloatType);
 	if(this -> varType == StringType) {
 		ans = BigInt(*(this -> varPointer.stringType));
 	}
@@ -333,4 +334,38 @@ Var& Var::toInt() {
 	std::swap(ans.varType, this -> varType);
 	std::swap(ans.varPointer, this -> varPointer);
 	return *this;
+}
+
+Var& Var::toFloat() {
+	Var ans;
+	if(this -> varType == FloatType) {
+		return *this;
+	}
+	assert(this -> varType == IntType || this -> varType == StringType);
+	if(this -> varType == IntType) {
+		ans.varType = FloatType;
+		ans.varPointer.floatType = new double(this -> varPointer.intType -> toDouble()); // BigInt => double
+	}
+	if(this -> varType == StringType) {
+		std::stringstream ss;
+		ss << *(this -> varPointer.stringType);
+		double dtmp;
+		ss >> dtmp;
+		ans = dtmp;
+	}
+	std::swap(ans.varType, this -> varType);
+	std::swap(ans.varPointer, this -> varPointer);
+	return *this;
+}
+
+Var& Var::toString() {
+	if(this -> varType == StringType) {
+		return *this;
+	}
+	std::stringstream ss;
+	ss << (*this);
+	Var ans = ss.str();
+	std::swap(ans.varType, this -> varType);
+	std::swap(ans.varPointer, this -> varPointer);
+	return (*this);
 }
