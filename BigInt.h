@@ -2,6 +2,7 @@
 #define __BIGINT_H__
 
 #include <iostream>
+#include <string>
 
 using std::istream;
 using std::ostream;
@@ -11,6 +12,7 @@ public:
 	BigInt();
 	BigInt(int);
 	BigInt(long long);
+	BigInt(const std::string&);
 	//BigInt(double); // transform int/long long/double to BigInt
 	BigInt(const BigInt&);
 	~BigInt();

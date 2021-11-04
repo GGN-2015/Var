@@ -9,12 +9,21 @@
 #include <map> // use map to make 'DictType'
 #include <vector> // use vector to make 'ListType'
 #include <string> // use string to make 'StringType'
+#include <iostream>
 
 using std::map;
 using std::vector;
 using std::string;
+using std::pair;
 
 class BigInt; // use BigInt to make 'IntType'
+
+class Var;
+
+typedef vector<Var> VarList, CreateList;
+typedef map<Var, Var> VarDict;
+typedef pair<Var, Var> DictKey;
+typedef vector<DictKey> CreateDict; // only use it to create a DictType
 
 class Var {
 public:
@@ -23,11 +32,19 @@ public:
 	Var(long long);
 	Var(const BigInt&); 		// IntType (int & long long may be upgrade to 'double')
 	Var(double); 				// FloatType
+	
+	Var(const char*);
 	Var(const string&); 		// StringType
+	
 	Var(const vector<Var>&); 	// ListType
+	
+	Var(const vector<DictKey>&);
 	Var(const map<Var, Var>&); 	// DictType
 	Var(const Var&); 			// Copy Constructor: Deep-Copy
 	~Var();						// Destructor
+	
+	friend std::ostream& operator<< (std::ostream&, const Var&); // output Var to ostream
+	//friend istream& operator>> (istream&, Var&); // input var from istream(hard to code)
 	
 	Var& operator= (int);
 	Var& operator= (long long);
@@ -36,9 +53,12 @@ public:
 	Var& operator= (const string&);
 	Var& operator= (const vector<Var>&);
 	Var& operator= (const map<Var, Var>&);
-	Var& operator= (Var&);		// Deep-Copy
+	Var& operator= (const Var&);		// Deep-Copy
 	
-	bool numeric() const;		// Check type() in ""
+	Var& toInt();
+	Var& toFloat();				// transform between IntType and FloatType (or StringType)
+	
+	bool numeric() const;		// Check type() in "IntType, FloatType"
 	
 	Var& add(const Var&);
 	Var& sub(const Var&);
@@ -63,9 +83,6 @@ public:
 	friend bool operator < (const Var&, const Var&);  // these two operator are only used in map<Var, Var>
 	
 	string type() const;			// "NoneType", "IntType", "FloatType", "ListType", "DictType"
-	
-	Var& toInt();
-	Var& toFloat();					// transform between IntType and FloatType (or StringType)
 	
 	Var& toList();
 	Var& toDict();					// transform between ListType and DictType
@@ -95,8 +112,10 @@ private:
 		double* floatType;
 		string* stringType;
 		vector<Var>* listType;
-		map<Var, Var> dictType;
+		map<Var, Var>* dictType;
 	} varPointer;
 };
+
+const Var None;
 
 #endif /* __VAR_H__ */

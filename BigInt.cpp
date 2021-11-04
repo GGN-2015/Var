@@ -1,7 +1,8 @@
 #include <assert.h>
 #include <algorithm>
 #include <cctype>
-//#include <iostream>
+#include <iostream>
+#include <sstream>
 #include <stack>
 
 #include "BigInt.h"
@@ -68,6 +69,17 @@ BigInt::BigInt(long long longLongVal) { // transform long long => BigInt
 			this -> arr[i] = stack[i];
 		}
 	}
+}
+
+BigInt::BigInt(const std::string& str) {
+	using std::swap;
+	std::stringstream ss;
+	ss << str;
+	BigInt tmp;
+	ss >> tmp;
+	swap(tmp.len, this -> len);
+	swap(tmp.arr, this -> arr);
+	swap(tmp.isneg, this -> isneg);
 }
 
 BigInt::BigInt(const BigInt& bigInt) { // Deep Copy a BigInt
