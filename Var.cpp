@@ -369,3 +369,44 @@ Var& Var::toString() {
 	std::swap(ans.varPointer, this -> varPointer);
 	return (*this);
 }
+
+bool Var::numeric() const {
+	return this -> varType == IntType || this -> varType == FloatType;
+}
+
+Var& Var::add(const Var&rhs) {
+	Var ans;
+	assert(this -> varType != NoneType);
+	assert(rhs.varType != NoneType);
+	if(this -> numeric() && rhs.numeric()) { // if two items are both number 
+		bool has_float = rhs.varType == FloatType || this -> varType == FloatType;
+		if(has_float) {
+			this -> toFloat();
+			Var rhs_tmp(rhs);
+			rhs_tmp.toFloat(); // now *this + rhs_tmp = float + float
+			ans = *(this -> varPointer.floatType) + *(rhs_tmp.varPointer.floatType);
+		}else {
+			// add between BigInt & BigInt
+			ans = *(this -> varPointer.intType) + *(rhs.varPointer.intType);
+		}
+	}else {
+		assert(this -> varType == rhs.varType);
+		if(this -> varType == StringType) {
+			*(this -> varPointer.stringType) += *(rhs.varPointer.stringType);
+		}else
+		if(this -> varType == ListType) {
+			for(auto vars: *rhs.varPointer.listType) { // for every node in rhs
+				this -> varPointer.listType -> push_back(vars);
+			}
+		}else
+		if(this -> varType == DictType) {
+			for(auto vars: *rhs.varPointer.dictType) { // for every node in rhs
+				this -> varPointer.dictType -> insert(vars); // the same index will be ignored without warning
+			}
+		}
+		return *this; // do not use ans
+	}
+	std::swap(ans.varType, this -> varType);
+	std::swap(ans.varPointer, this -> varPointer);
+	return *this;
+}

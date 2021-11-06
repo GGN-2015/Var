@@ -57,6 +57,7 @@ public:
 	
 	Var& toInt();
 	Var& toFloat();				// transform between IntType and FloatType (or StringType)
+	Var& toString();			// transform any Type of Value to a StringType
 	
 	bool numeric() const;		// Check type() in "IntType, FloatType"
 	
@@ -86,8 +87,6 @@ public:
 	
 	Var& toList();
 	Var& toDict();					// transform between ListType and DictType
-	
-	Var& toString();				// transform any Type of Value to a StringType
 	
 	int len() const;				// get the size of StringType, ListType or DictType
 	
