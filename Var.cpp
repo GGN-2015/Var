@@ -288,6 +288,22 @@ bool operator< (const Var& lhs, const Var& rhs) {
 	}
 }
 
+bool operator <= (const Var& lhs, const Var& rhs) {
+	return !(lhs > rhs);
+}
+
+bool operator >  (const Var& lhs, const Var& rhs) {
+	return rhs < lhs;
+}
+
+bool operator >= (const Var& lhs, const Var& rhs) {
+	return !(lhs < rhs);
+}
+
+bool operator != (const Var& lhs, const Var& rhs) {
+	return !(lhs == rhs);
+}
+
 Var& Var::operator[](const Var& index) {
 	assert(this -> varType == ListType || this -> varType == DictType);
 	if(this -> varType == ListType) {
@@ -307,6 +323,27 @@ Var& Var::operator[](const Var& index) {
 		}
 		return dict[index];
 	}
+}
+
+Var Var::type() const {
+	switch(this -> varType) {
+		case NoneType:
+			return "NoneType";
+		case IntType:
+			return "IntType";
+		case FloatType:
+			return "FloatType";
+		case StringType:
+			return "StringType";
+		case ListType:
+			return "ListType";
+		case DictType:
+			return "DictType";
+		default:
+			assert(false);
+			return "ErrorType";
+	}
+	return "ErrorType"; 
 }
 
 Var& Var::toInt() {
@@ -409,4 +446,142 @@ Var& Var::add(const Var&rhs) {
 	std::swap(ans.varType, this -> varType);
 	std::swap(ans.varPointer, this -> varPointer);
 	return *this;
+}
+
+Var& Var::sub(const Var& rhs) {
+	Var ans;
+	assert(this -> varType != NoneType);
+	assert(rhs.varType != NoneType);
+	assert(this -> numeric() && rhs.numeric()); // if two items are both number 
+	bool has_float = rhs.varType == FloatType || this -> varType == FloatType;
+	if(has_float) {
+		this -> toFloat();
+		Var rhs_tmp(rhs);
+		rhs_tmp.toFloat(); // now *this - rhs_tmp = float - float
+		ans = *(this -> varPointer.floatType) - *(rhs_tmp.varPointer.floatType);
+	}else {
+		// sub between BigInt & BigInt
+		ans = *(this -> varPointer.intType) - *(rhs.varPointer.intType);
+	}
+	std::swap(ans.varType, this -> varType);
+	std::swap(ans.varPointer, this -> varPointer);
+	return *this;
+}
+
+Var& Var::mul(const Var& rhs) {
+	Var ans;
+	assert(this -> varType != NoneType);
+	assert(rhs.varType != NoneType);
+	if(this -> numeric() && rhs.numeric()) {
+		bool has_float = rhs.varType == FloatType || this -> varType == FloatType;
+		if(has_float) {
+			this -> toFloat();
+			Var rhs_tmp(rhs);
+			rhs_tmp.toFloat(); // now *this * rhs_tmp = float * float
+			ans = *(this -> varPointer.floatType) * *(rhs_tmp.varPointer.floatType);
+		}else {
+			// sub between BigInt & BigInt
+			ans = *(this -> varPointer.intType) * *(rhs.varPointer.intType);
+		}
+	}else { // string * int / list * int is also ok, but int must >= 0
+		if(this -> varType == StringType) {
+			assert(rhs.varType == IntType);
+			assert(*rhs.varPointer.intType >= 0);
+			ans = Var("");
+			for(int i = 1; i <= *rhs.varPointer.intType; i ++) {
+				*ans.varPointer.stringType += *(this -> varPointer.stringType);
+			}
+		}else if(this -> varType == ListType) {
+			assert(rhs.varType == IntType);
+			assert(*rhs.varPointer.intType >= 0);
+			ans = CreateList({}); // empty list
+			for(int i = 1; i <= *rhs.varPointer.intType; i ++) {
+				ans.add(*this); // append a list
+			}
+		}else {
+			assert(this -> varType != StringType && this -> varType != ListType);
+		}
+	}
+	std::swap(ans.varType, this -> varType);
+	std::swap(ans.varPointer, this -> varPointer);
+	return *this;
+}
+
+Var& Var::div(const Var& rhs) { // ! int / int => int
+	Var ans;
+	assert(this -> numeric());
+	assert(rhs.numeric());
+	bool has_float = this -> varType == FloatType || rhs.varType == FloatType;
+	if(has_float) {
+		this -> toFloat();
+		Var rhs_tmp(rhs);
+		rhs_tmp.toFloat(); // to float
+		ans = *(this -> varPointer.floatType) / *rhs_tmp.varPointer.floatType;
+	}else { // int // int => int
+		ans = *(this -> varPointer.intType) / *rhs.varPointer.intType;
+	}
+	std::swap(ans.varType, this -> varType);
+	std::swap(ans.varPointer, this -> varPointer);
+	return *this;
+}
+
+Var& Var::mod(const Var& rhs) { // must be [int] mod [int]
+	assert(this -> varType == IntType);
+	assert(rhs.varType == IntType);
+	this -> varPointer.intType -> mod(*rhs.varPointer.intType);
+	return *this;
+}
+
+Var& Var::operator+= (const Var& rhs) {
+	return this -> add(rhs);
+}
+
+Var& Var::operator-= (const Var& rhs) {
+	return this -> sub(rhs);
+}
+
+Var& Var::operator*= (const Var& rhs) {
+	return this -> mul(rhs);
+}
+
+Var& Var::operator/= (const Var& rhs) {
+	return this -> div(rhs);	
+}
+
+Var& Var::operator%= (const Var& rhs) {
+	return this -> mod(rhs);
+}
+
+Var& Var::operator++ () { // prefix ++
+	assert(this -> numeric());
+	if(this -> varType == IntType) {
+		this -> varPointer.intType -> add(1);
+	}else { // this -> varType == FloatType
+		*(this -> varPointer.floatType) += 1;
+	}
+	return *this;
+}
+
+Var Var::operator++ (int) { // suffix ++ 
+	Var ans(*this);
+	assert(this -> numeric());
+	this -> operator ++();
+	return ans;
+}
+
+Var& Var::operator-- () { // prefix --
+	assert(this -> numeric());
+	if(this -> varType == IntType) {
+		this -> varPointer.intType -> sub(1);
+	}else { // this -> varType == FloatType
+		*(this -> varPointer.floatType) -= 1;
+	}
+	return *this;
+}
+
+Var Var::operator-- (int) { // suffix --
+	Var ans(*this);
+	assert(this -> numeric());
+	this -> operator --();
+	return ans;
 }

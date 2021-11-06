@@ -55,6 +55,8 @@ public:
 	Var& operator= (const map<Var, Var>&);
 	Var& operator= (const Var&);		// Deep-Copy
 	
+	Var type() const;			// "NoneType", "IntType", "FloatType", "ListType", "DictType"
+	
 	Var& toInt();
 	Var& toFloat();				// transform between IntType and FloatType (or StringType)
 	Var& toString();			// transform any Type of Value to a StringType
@@ -73,6 +75,11 @@ public:
 	Var& operator/= (const Var&);
 	Var& operator%= (const Var&);// all the self construct operator
 	
+	Var& operator++ (); // prefix ++
+	Var operator++ (int); // suffix ++ 
+	Var& operator-- (); // prefix --
+	Var operator-- (int); // suffix --
+	
 	bool equ(const Var&) const;
 	bool less(const Var&) const;
 	bool greater(const Var&) const;
@@ -81,9 +88,11 @@ public:
 	bool neq(const Var&) const;
 	
 	friend bool operator == (const Var&, const Var&);
-	friend bool operator < (const Var&, const Var&);  // these two operator are only used in map<Var, Var>
-	
-	string type() const;			// "NoneType", "IntType", "FloatType", "ListType", "DictType"
+	friend bool operator <  (const Var&, const Var&);  // these two operator are only used in map<Var, Var>
+	friend bool operator <= (const Var&, const Var&);
+	friend bool operator >  (const Var&, const Var&);
+	friend bool operator >= (const Var&, const Var&);
+	friend bool operator != (const Var&, const Var&);
 	
 	Var& toList();
 	Var& toDict();					// transform between ListType and DictType
