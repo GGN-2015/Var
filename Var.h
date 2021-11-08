@@ -75,17 +75,10 @@ public:
 	Var& operator/= (const Var&);
 	Var& operator%= (const Var&);// all the self construct operator
 	
-	Var& operator++ (); // prefix ++
-	Var operator++ (int); // suffix ++ 
-	Var& operator-- (); // prefix --
-	Var operator-- (int); // suffix --
-	
-	bool equ(const Var&) const;
-	bool less(const Var&) const;
-	bool greater(const Var&) const;
-	bool leq(const Var&) const;
-	bool geq(const Var&) const;		// Comparison between Vars
-	bool neq(const Var&) const;
+	Var& operator++ (); 		// prefix ++
+	Var operator++ (int); 		// suffix ++ 
+	Var& operator-- (); 		// prefix --
+	Var operator-- (int); 		// suffix --
 	
 	friend bool operator == (const Var&, const Var&);
 	friend bool operator <  (const Var&, const Var&);  // these two operator are only used in map<Var, Var>
@@ -94,8 +87,15 @@ public:
 	friend bool operator >= (const Var&, const Var&);
 	friend bool operator != (const Var&, const Var&);
 	
-	Var& toList();
-	Var& toDict();					// transform between ListType and DictType
+	bool equ(const Var&) const;
+	bool less(const Var&) const;
+	bool greater(const Var&) const;
+	bool leq(const Var&) const;
+	bool geq(const Var&) const;		// Comparison between Vars
+	bool neq(const Var&) const;
+	
+	//Var& toList();
+	//Var& toDict();				// transform between ListType and DictType
 	
 	int len() const;				// get the size of StringType, ListType or DictType
 	
@@ -115,7 +115,7 @@ public:
 private:
 	VarType varType;
 	
-	union {
+	union { 						// point at the value of the Var
 		BigInt* intType;
 		double* floatType;
 		string* stringType;
@@ -125,5 +125,8 @@ private:
 };
 
 const Var None;
+
+Var Chr(const Var&); // int => string(len = 1)
+Var Ord(const Var&); // string(len = 1) => int
 
 #endif /* __VAR_H__ */
